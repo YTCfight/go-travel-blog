@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-travel-blog/global"
 	"go-travel-blog/internal/model"
 	"go-travel-blog/internal/routers"
@@ -39,6 +40,8 @@ func main() {
 	if err != nil {
 		return
 	}
+
+	fmt.Println(111)
 }
 
 func setupSetting() error {
