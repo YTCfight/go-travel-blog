@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"go-travel-blog/global"
 	"go-travel-blog/internal/model"
 	"go-travel-blog/internal/routers"
+	"go-travel-blog/pkg/logger"
 	"go-travel-blog/pkg/setting"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"net/http"
 	"time"
@@ -17,6 +18,11 @@ func init() {
 	err := setupSetting()
 	if err != nil {
 		log.Fatalf("init.setupSetting err: %v", err)
+	}
+
+	err = setupLogger()
+	if err != nil {
+		log.Fatalf("init.setupLogger err: %v", err)
 	}
 
 	err = setupDBEngine()
@@ -36,12 +42,13 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
+	global.Logger.Infof("%s: go-programming-tour-book/%s", "eddycjy", "blog-service")
+
 	err := s.ListenAndServe()
 	if err != nil {
 		return
 	}
 
-	fmt.Println(111)
 }
 
 func setupSetting() error {
@@ -67,6 +74,18 @@ func setupSetting() error {
 
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
+
+	return nil
+}
+
+func setupLogger() error {
+	global.Logger = logger.NewLogger(&lumberjack.Logger{
+		Filename: global.AppSetting.LogSavePath + "/" +
+			global.AppSetting.LogFileName + global.AppSetting.LogFileExt,
+		MaxSize:   600,
+		MaxAge:    10,
+		LocalTime: true,
+	}, "", log.LstdFlags).WithCaller(2)
 
 	return nil
 }
